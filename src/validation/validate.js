@@ -20,6 +20,10 @@ const isValidmobile= (data) => {
 };
 
 // --------------body----------------------------
+const isValidreqBody=(request)=>{
+    return Object.keys(request).length>0
+}
+
 const isValidElem= (data) =>{
     if (data == undefined || data == null) return false
     if (typeof(data)==="string" && data.trim()=="" ) return false
@@ -27,10 +31,15 @@ const isValidElem= (data) =>{
 }
 
 // ---------------logo link-----------------------------------
-const isValidLogo = (logolink)=>{
+const isValidimage = (logolink)=>{
     let url =/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/
     return url.test(logolink)
 }
 
+const isvalidpassword =(password) =>{
+    let regx =/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,15}$/
+    return regx.test(password)
+}
 
-module.exports = {  isValidEmail,isValidName,isValidElem ,isValidmobile ,isValidLogo }
+
+module.exports = {  isValidEmail,isValidName,isValidreqBody,isValidElem ,isValidmobile ,isValidimage,isvalidpassword }
