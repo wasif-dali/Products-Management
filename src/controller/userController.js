@@ -138,9 +138,6 @@ const createUser = async function (req, res) {
 }
 const userLogin = async (req, res) => {
 
-<<<<<<< HEAD
-///get user 
-=======
     try {
         const loginData = req.body
         const { email, password } = loginData
@@ -179,11 +176,6 @@ const userLogin = async (req, res) => {
         res.status(500).send({ status: false, message: error.message })
     }
 }
-
-module.exports = {
-    createUser, userLogin
->>>>>>> f39289bbdda6ac59595c33b8fd4eee2a01873e6f
-
 const userProfile =async function (req,res)
 {
 try
@@ -210,4 +202,7 @@ return res.status(500).send({status:true,message:"user profile details",data:che
 
 }
 
-module.exports={createUser,userProfile}
+module.exports = {createUser, userLogin,userProfile}
+
+
+
