@@ -26,35 +26,35 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minLen: 8, maxLen: 15
+ 
     },
     address: {
         shipping: {
             street: {
                 type: String,
-                required: true
+                // required: true
             },
             city: {
                 type: String,
-                required: true
+                // required: true
             },
             pincode: {
                 type: Number,
-                required: true
+                // required: true
             }
         },
         billing: {
             street: {
                 type: String,
-                required: true
+                // required: true
             },
             city: {
                 type: String,
-                required: true
+                // required: true
             },
             pincode: {
                 type: Number,
-                required: true
+                // required: true
             }
         }
     },
@@ -62,4 +62,4 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 
-module.exports = mongoose.Model("User", userSchema)
+module.exports = mongoose.model("User", userSchema)
