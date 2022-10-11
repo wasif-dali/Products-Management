@@ -7,6 +7,7 @@ router.get('/test-me',function(req,res){
 })
 
 router.post('/register',userController.createUser)
+router.get('/user',userController.userProfile)
 
 
 

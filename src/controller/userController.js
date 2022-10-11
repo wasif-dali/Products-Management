@@ -1,5 +1,3 @@
-
-console.log(userId)
 const userModel= require("../Model/userModel")
 const bcrypt = require('bcrypt');
 const validation = require("../validation/validate")
@@ -85,6 +83,9 @@ try
     return res
     .status(400)
     .send({status:false,message:"enter userid in p path"})
+
+    const checkUser =await userModel.findById(userId)
+    
     
 return res.status(500).send({status:true,message:"user profile details",data:checkuser})
 
@@ -99,7 +100,4 @@ return res.status(500).send({status:true,message:"user profile details",data:che
 
 }
 
-module.exports={
-    createUser
-
-}
+module.exports={createUser,userProfile}
