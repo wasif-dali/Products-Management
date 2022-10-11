@@ -1,6 +1,7 @@
 const userModel = require("../Model/userModel")
 const bcrypt = require('bcrypt');
 const validation = require("../validation/validate")
+const aws=require("aws-sdk")
 
 
 aws.config.update({
