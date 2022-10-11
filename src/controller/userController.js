@@ -1,5 +1,6 @@
 const userModel= require("../Model/userModel")
 const bcrypt = require('bcrypt');
+const jwt=require("jsonwebtoken")
 // const saltRounds = 10;
 
 const createUser = async function(req,res){
@@ -55,9 +56,30 @@ const createUser = async function(req,res){
             message: err.message
           })
     }
-} 
+}
+const userLogin= async (req,res)=>{
+
+    try{
+        const loginData=req.body
+        const {email,password}=loginData
+        const user=await userModel.findOne({email:email})
+        if(!user) return res.status(401).send({status:false,message:"Invalid Credential"})
+        let MatchUser= await bcrypt.compare(password,user.password)
+        if(!MatchUser) return res.status(401).send({status:false,message:"password does not match"})
+
+
+        let token =jwt.sign({userId:user._id.toString(),iat:Math.floor(Date.now()/1000)},
+        "Project5-ProductManagement",
+        { expiresIn:'24h'});
+        res.setHeader("Authorization",token)
+        res.status(200).send({status:true,message:"User Login Succesful",data:{userId:user._id,token:token}})
+    }
+catch(error){
+    res.status(500).send({status:false,message:error.message})
+}
+}
 
 module.exports={
-    createUser
+    createUser,userLogin
 
 }
