@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minLen: 8, maxLen: 15
+ 
     },
     address: {
         shipping: {
@@ -62,4 +62,4 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 
-module.exports = mongoose.Model("User", userSchema)
+module.exports = mongoose.model("User", userSchema)
