@@ -2,6 +2,7 @@ const userModel = require("../Model/userModel")
 const bcrypt = require('bcrypt');
 const validation = require("../validation/validate")
 const aws=require("aws-sdk")
+const jwt =require('jsonwebtoken')
 
 
 aws.config.update({
@@ -198,13 +199,26 @@ const getprofile = async function(req,res){
     if(!findProfile){
         return res.status(404).send({status: false,message: "User profile details Not found"})
     }
-    if(req.pass.userId!=findProfile._id.toString){
-        return res.status(404).send({status: false,message: "User profile details Not found"})
-    }
+    
     return res.status(200).send({status: true,message: "User profile details",data:findProfile})
 } 
 
+
+const updateProfile =function(req ,res){
+    let profileId = req.params.userId
+    console.log(profileId)
+    const obj = JSON.parse(JSON.stringify(req.body))
+    let {fname ,lname }=obj
+    console.log(obj)
+    
+    
+    let updateProfile = userModel.findByIdAndUpdate({_id : profileId},{
+        $set:{ }
+    },{new:true})
+
+    return res.status(200).send({status: true,message: "User profile updated", data:updateProfile})
+}
 module.exports = {
-    createUser, userLogin,getprofile
+    createUser, userLogin,getprofile,updateProfile
 
 }
