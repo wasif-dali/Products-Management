@@ -40,6 +40,9 @@ const isvalidpassword =(password) =>{
     let regx =/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,15}$/
     return regx.test(password)
 }
+const  PinCode =(pincode)=>{
+    let regx=/^[1-9][0-9]{5}$/
+    return regx.test(pincode)
+}
 
-
-module.exports = {  isValidEmail,isValidName,isValidreqBody,isValidElem ,isValidmobile ,isValidimage,isvalidpassword }
+module.exports = {  isValidEmail,isValidName,isValidreqBody,isValidElem ,isValidmobile ,isValidimage,isvalidpassword ,PinCode}
