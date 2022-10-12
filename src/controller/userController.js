@@ -1,4 +1,5 @@
 const userModel = require("../Model/userModel")
+const mongoose=require("mongoose")
 const bcrypt = require('bcrypt');
 const validation = require("../validation/validate")
 const aws=require("aws-sdk")
@@ -194,15 +195,17 @@ const userLogin = async (req, res) => {
 const getprofile = async function(req,res){
     let profileId= req.params.userId
     if(!profileId) return res.status(400).send({ status: false, message: "userId is required in path par" })
+    if(!mongoose.isValidObjectId(profileId)) return res.status(403).send({status:false,message:"Invalid ProfileId"})
+    if(req.token !=profileId) return res.status(403).send({status:false,message:"Unauthorized"})
+
     let findProfile= await userModel.findById(profileId)
     if(!findProfile){
         return res.status(404).send({status: false,message: "User profile details Not found"})
     }
-    if(req.pass.userId!=findProfile._id.toString){
-        return res.status(404).send({status: false,message: "User profile details Not found"})
-    }
+   
     return res.status(200).send({status: true,message: "User profile details",data:findProfile})
 } 
+
 
 module.exports = {
     createUser, userLogin,getprofile
