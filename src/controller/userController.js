@@ -143,10 +143,12 @@ const userLogin = async (req, res) => {
 
     const getprofile = async function(req,res){
         let profileId= req.params.userId
+        if(!profileId) return res.status(400).send({ status: false, message: "userId is required in path par" })
         let findProfile= await userModel.findById(profileId)
         if(!findProfile){
             return res.status(404).send({status: false,message: "User profile details Not found"})
         }
+        
         return res.status(200).send({status: true,message: "User profile details",data:findProfile})
     }
 
