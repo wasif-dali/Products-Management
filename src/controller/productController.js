@@ -1,6 +1,7 @@
 const aws =require("aws-sdk")
 const productModel=require("../Model/productModel")
 const validation=require("../validation/validate")
+const ObjectId = require('mongoose').Types.ObjectId
 
 
 
@@ -95,14 +96,16 @@ const addProduct= async (req,res)=>{
     }
     //---------------------------------style  validation--------------------------------------------------
     if(style||style==""){
-        if(validation.isValidElem(style)) return res.status(400).send({status:false,message:"style is required"})
-        if(validation.isValidName(style)) return res.status(400).send({status:false,message:"please style should be characters only "})
+        if(!validation.isValidElem(style)) return res.status(400).send({status:false,message:"style is required"})
+        if(!validation.isValidName(style)) return res.status(400).send({status:false,message:"please style should be characters only "})
     }
     //--------------------------------availableSize validation----------------------------------------------
     if(!availableSizes) return res.status(400)({status:false,message:"available Size is required "})
     let size1=["S", "XS", "M", "X", "L", "XL", "XXL"]
     let size2= availableSizes.split(",").map((x)=>x.trim().toUpperCase())
+    console.log(size2)
     for(let i=0;i<size2.length;i++){
+        console.log(size1.includes(size2[i]))
         if(!(size1.includes(size2[i]))){
             return res.status(400).send({status:false,message:"Sizes Should One of these-'S', 'XS', 'M', 'X', 'L', 'XL', 'XXL' "})
         }
@@ -117,24 +120,19 @@ const addProduct= async (req,res)=>{
     }
 
 
-if (!files || files.length == 0) return res.status(400).send({ status: false, message: "Please upload product image" });
-        //upload to s3 and get the uploaded link
-        let uploadedFileURL = await uploadFile(files[0])
-        data.productImage = uploadedFileURL
-        if (!/(\.jpg|\.jpeg|\.bmp|\.gif|\.png)$/i.test(data.productImage)) return res.status(400).send({ status: false, message: "Please provide profileImage in correct format like jpeg,png,jpg,gif,bmp etc" })
+// if (!files || files.length == 0) return res.status(400).send({ status: false, message: "Please upload product image" });
+//         //upload to s3 and get the uploaded link
+//         let uploadedFileURL = await uploadFile(files[0])
+//         data.productImage = uploadedFileURL
+//         if (!/(\.jpg|\.jpeg|\.bmp|\.gif|\.png)$/i.test(data.productImage)) return res.status(400).send({ status: false, message: "Please provide profileImage in correct format like jpeg,png,jpg,gif,bmp etc" })
 
-        let created = await productModel.create(data).select({__v:0})
+        let created = await productModel.create(data)
         res.status(201).send({ status: true, message: 'Success', data: created })
     } catch (err) {
         console.log(err)
         res.status(500).send({ status: false, error: err.message })
     }
 }
-
-//get by id
-
-const productModel = require("../Model/productModel")
-const validation = require('../validation/validate')
 
 
 
@@ -143,34 +141,66 @@ const getDataByQuery = async function(req,res){
 try{
     let data=  req.query 
     let {size , name , priceGreaterThan,priceLessThan,priceSort} =data
-    let document ={}
-    document.isDeleted =true
+    let title,price,availableSizes
+    let document ={
+        isDeleted:false
+    }
+    
     if(size){
-        document.availableSizes=availableSizes
+        if(!validation.isValidElem(size) || (["S", "XS","M","X", "L","XXL", "XL"].indexOf(size)==-1)){
+           return res.status(400).send({ status: false, message: 'size should be in "S", "XS","M","X", "L","XXL", "XL" '})
+        }else{
+        document.availableSizes=size
+        }
     }
     if(name){
-        document.title=title
+        if(!validation.isValidName(name)){
+            return res.status(400).send({ status: false, message: 'name is not in correct format'})
+        }else{
+        document.title=name}
     }
-    if(priceLessThan && priceGreaterThan){
-        document.Price={ $gt :  priceGreaterThan, $lt : priceLessThan}
-    }
-    if(priceGreaterThan){
-        document.Price= {$gt:priceGreaterThan}
+    /// problem see again  
 
+    if(priceGreaterThan){
+        if(!(/^[1-9]\d{0,7}(?:\.\d{1,2})?$/.test(priceGreaterThan))|| !validation.isValidElem(priceGreaterThan)){
+            return res.status(400).send({ status: false, message: 'priceGreaterthan is not in correct format'})
+        }else{
+            priceGreaterThan=Number(priceGreaterThan)
+            document.price={$gt : priceGreaterThan}
+        }
     }
     if(priceLessThan){
-        document.Price={$gt:priceLessThan}
+        if(!(/^[1-9]\d{0,7}(?:\.\d{1,2})?$/.test(priceLessThan))|| !validation.isValidElem(priceLessThan)){
+            return res.status(400).send({ status: false, message: 'priceGreaterthan is not in correct format'})
+        }else{
+            priceLessThan=Number(priceLessThan)
+            document.price={$lt:priceLessThan}
+        }
     }
-    if(priceSort){
-        let getdata = await productModel.find(document).sort({Price: priceSort})
-        if(getdata.length == 0 ) return res.status(404).send({status:false , msg : "No product Found"})
-        return res.status(200).send({status:true , data : getdata})
+    let getdata
+    if (priceSort) {
+        priceSort = priceSort.trim();
+        console.log(priceSort)
+        if (["-1", "1"].indexOf(priceSort) < 0) {
+            return res.status(400).send({status: false,message: "enter the Valid key for priceSort", });
+        }
+        if (priceSort == "1") {
+            console.log(document)
+            getdata = await productModel.find(document).sort({ price: 1 });
+            return res.status(200).send({status:true , data : getdata})
+        } else if (priceSort == "-1") {
+           console.log("chal raha hai")
+           console.log(document)
+           getdata = await productModel.find(document).sort({ price: -1 });
+           return res.status(200).send({status:true , data : getdata})
+        }
     }
-    console.log(document)
+    // console.log(document)
 
 
-    let getdata = await productModel.find(document)
+    getdata = await productModel.find(document)
     if(getdata.length == 0 ) return res.status(404).send({status:false , msg : "No product Found"})
+    console.log(document)
     return res.status(200).send({status:true , data : getdata})
 }catch(err){
     console.log(err)
@@ -187,7 +217,7 @@ const getById = async (req, res) =>
     {
         const productId = req.params.productId
 
-        if (!mongoose.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "enter valid id in path param" })
+        if (!ObjectId.isValid(productId)) return res.status(400).send({ status: false, message: "enter valid id in path param" })
 
         const checkProduct = await productModel.findOne({ _id: productId, isDeleted: false })
        
@@ -312,7 +342,7 @@ const deleteProduct = async (req, res) =>
     {
         const productId = req.params.productId;
 
-        if (!mongoose.isValidObjectId(productId)) return res.status(400)
+        if (!ObjectId.isValid(productId)) return res.status(400)
         .send({ status: false, message: "Please enter valid productId in params path" });
 
         const checkProduct = await productModel.findOne({ _id: productId, isDeleted: false });
