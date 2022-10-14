@@ -128,8 +128,8 @@ const createUser = async function (req, res) {
             let uploadedFileURL = await uploadFile(files[0])
             document.profileImage = uploadedFileURL
 
-            if (!validation.isValidElem(profileImage)) return res.status(400).send({ status: false, msg: "profile image is required" })
-            if (!validation.isValidimage(profileImage)) return res.status(400).send({ status: false, msg: "profile image link is wrong " })
+            // if (!validation.isValidElem(profileImage)) return res.status(400).send({ status: false, msg: "profile image is required" })
+            // if (!validation.isValidimage(profileImage)) return res.status(400).send({ status: false, msg: "profile image link is wrong " })
         }
         else {
             return res.status(400).send({ status: false, message: "no image present" })
@@ -228,7 +228,7 @@ const updateProfile =async function(req ,res){
         const findUserId = await userModel.findById(userId);
         if (!findUserId)
         return res.status(404).send({ status: false, message: "NO DATA FOUND" });
-        if (userId != userIdfromtoken) {
+        if (req.token.userId != userId) {
             return res.status(403).send({ status: false, message: "YOU ARE NOT AUTHORIZED" });
         }
 
@@ -354,6 +354,9 @@ const updateProfile =async function(req ,res){
     }
 
 }
+
+
+
 
 
 module.exports = {

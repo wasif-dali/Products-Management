@@ -8,7 +8,7 @@ const isValidEmail = (email) => {
 
 //-------------------name--------------
 const isValidName = (name) => {
-    const regx = /^[a-z ,.'-]+$/i
+    const regx = /^[A-Za-z\\s]+$/
     return regx.test(name)
 };
 
@@ -22,6 +22,12 @@ const isValidmobile= (data) => {
 // --------------body----------------------------
 const isValidreqBody=(request)=>{
     return Object.keys(request).length>0
+}
+
+const isValidNumber =(number)=>{
+    if (number == undefined || number == null) return false
+    if (typeof(number)=== Number) return false
+    return true
 }
 
 const isValidElem= (data) =>{
@@ -45,4 +51,4 @@ const  PinCode =(pincode)=>{
     return regx.test(pincode)
 }
 
-module.exports = {  isValidEmail,isValidName,isValidreqBody,isValidElem ,isValidmobile ,isValidimage,isvalidpassword ,PinCode}
+module.exports = {  isValidEmail,isValidName,isValidreqBody,isValidElem ,isValidmobile ,isValidimage,isvalidpassword ,PinCode ,isValidNumber}
