@@ -28,7 +28,7 @@ let uploadFile = async (file) => {
             if (err) {
                 return reject({ "error": err })
             }
-            console.log(data)
+            // console.log(data)
             console.log("file uploaded succesfully")
             return resolve(data.Location)
         })
@@ -39,9 +39,9 @@ let uploadFile = async (file) => {
 }
 //-----------------------------------------ProductCreate----------------------------------------------------
 const addProduct= async (req,res)=>{
-    try{
+try{
     let data =req.body
-    let files=req.file
+    let files=req.files
 
 
     if(!(validation.isValidreqBody(data)||files)) return res.status(400).send({status:false,message:"Invalid request parameter,Please Provide"})
@@ -95,8 +95,8 @@ const addProduct= async (req,res)=>{
     }
     //---------------------------------style  validation--------------------------------------------------
     if(style||style==""){
-        if(validation.isValidElem(style)) return res.status(400).send({status:false,message:"style is required"})
-        if(validation.isValidName(style)) return res.status(400).send({status:false,message:"please style should be characters only "})
+        if(!validation.isValidElem(style)) return res.status(400).send({status:false,message:"style is required"})
+        if(!validation.isValidName(style)) return res.status(400).send({status:false,message:"please style should be characters only "})
     }
     //--------------------------------availableSize validation----------------------------------------------
     if(!availableSizes) return res.status(400)({status:false,message:"available Size is required "})
@@ -113,19 +113,25 @@ const addProduct= async (req,res)=>{
     if(installments || installments==""){
         if(!validation.isValidElem(installments)) return res.status(400).send({status:false,message:"installments should be in numbers"})
         if(!validation.isValidNumber(installments)) return res.status(400).send({status:false,message:"installment should be in number Only"})
-
     }
 
+    
 
-if (!files || files.length == 0) return res.status(400).send({ status: false, message: "Please upload product image" });
+
+     if(!files || files.length == 0) return res.status(400).send({ status: false, message: "Please upload product image" })
+    
         //upload to s3 and get the uploaded link
         let uploadedFileURL = await uploadFile(files[0])
         data.productImage = uploadedFileURL
         if (!/(\.jpg|\.jpeg|\.bmp|\.gif|\.png)$/i.test(data.productImage)) return res.status(400).send({ status: false, message: "Please provide profileImage in correct format like jpeg,png,jpg,gif,bmp etc" })
+    const create = await productModel.create(data)
+    return res.status(201).send({status:true,message:"Success",data:create})
 
-        let created = await productModel.create(data).select({__v:0})
-        res.status(201).send({ status: true, message: 'Success', data: created })
-    } catch (err) {
+
+
+
+}
+ catch (err) {
         console.log(err)
         res.status(500).send({ status: false, error: err.message })
     }
@@ -184,4 +190,4 @@ const deleteProduct = async (req, res) =>
         .send({ status: false, message: err.message })
     }
 }
-module.exports={addProduct}
+module.exports={addProduct,deleteProduct,getById}
