@@ -1,26 +1,69 @@
-const mongoose=require("mongoose");
+const mongoose = require("mongoose");
 
-const productSchema=new mongoose.Schema(
+const productSchema = new mongoose.Schema(
     {
-        title: { type: String, required: true, unique: true, trim: true },
+        title: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true
+        },
 
-        description: { type: String, required: true, trim: true },
+        description: {
+            type: String,
+            required: true,
+            trim: true
+        },
 
-        price: { type: Number, required: true },
+        price: {
+            type: Number,
+            required: true
+        },
 
-        currencyId: { type: String, required: true, trim: true },
+        currencyId: {
+            type: String,
+            required: true,
+            trim: true,
+            enum: ["INR"]
+        },
 
-        currencyFormat: { type: String, required: true, trim: true },
+        currencyFormat: {
+            type: String,
+            required: true,
+            trim: true,
+            enum: ["₹"]
+        },
 
-        isFreeShipping: { type: Boolean, default: false },
+        isFreeShipping: {
+            type: Boolean,
+            default: false,
+            trim: true
 
-        productImage: { type: String, required: true, trim: true }, // url link s3
+        },
 
-        style: { type: String, trim: true },
+        productImage: {
+            type: String,
+            required: true,
+            trim: true
+        }, // url link s3
 
-        availableSizes: { type: [String], required: true, toUpperCase: true, trim: true },
+        style: {
+            type: String,
+            trim: true
+        },
 
-        installments: { type: Number, trim: true },
+        availableSizes: {
+            type: [String],
+            required: true,
+            enum: ["S", "XS", "M", "X", "L", "XL", "XXL",],
+            toUpperCase: true,
+            trim: true
+        },
+
+        installments: {
+            type: Number,
+            trim: true
+        },
 
         deletedAt: { type: Date },
 
@@ -31,5 +74,4 @@ const productSchema=new mongoose.Schema(
 module.exports = mongoose.model('product', productSchema);
 
 
- 
-  
+
