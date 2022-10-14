@@ -24,11 +24,6 @@ const isValidreqBody=(request)=>{
     return Object.keys(request).length>0
 }
 
-const isValidNumber =(number)=>{
-    if (number == undefined || number == null) return false
-    if (typeof(number)=== Number) return false
-    return true
-}
 
 const isValidElem= (data) =>{
     if (data == undefined || data == null) return false
@@ -49,6 +44,11 @@ const isvalidpassword =(password) =>{
 const  PinCode =(pincode)=>{
     let regx=/^[1-9][0-9]{5}$/
     return regx.test(pincode)
+}
+const isValidNumber =(number)=>{
+    if (number == undefined || number == null) return false
+    if (typeof(number)=== Number) return false
+    return true
 }
 
 module.exports = {  isValidEmail,isValidName,isValidreqBody,isValidElem ,isValidmobile ,isValidimage,isvalidpassword ,PinCode ,isValidNumber}
