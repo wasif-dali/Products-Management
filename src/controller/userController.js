@@ -72,33 +72,9 @@ const createUser = async function (req, res) {
 
         if (!validation.isValidElem(address)) return res.status(400).send({ status: false, msg: "address is required" })
 
-
-        // let requiredFields = ["street", "city","pincode"];
-        // for (field of requiredFields) {
-        //     if (!(req.body.address.shipping.hasOwnProperty(field))) {
-        //       return res
-        //         .status(400)
-        //         .send({ status: false, msg: `this key is not present==>${field}` });
-        //     }
-        // }
-
-        const requiredFields=["street", "city","pincode"]
-        for (field of requiredFields){
-            let data= req.body.address.shipping[field]
-            if (!validation.isValidElem(data)) return res.status(400).send({ status: false, msg: ` shipping ${field} is required` })
-        }
-        const required=["street", "city","pincode"]
-        for (field of required){
-            let data= req.body.address.billing[field]
-            if (!validation.isValidElem(data)) return res.status(400).send({ status: false, msg: ` billing ${field} is required` })
-        }
-
         const salting = await bcrypt.genSalt(10)
         const newpassword = await bcrypt.hash(password, salting)
         console.log(newpassword)
-
-
-
 
         let document = {
             fname: fname,
@@ -107,18 +83,21 @@ const createUser = async function (req, res) {
             profileImage: profileImage,
             phone: phone,
             password: newpassword,
-            address: {
-                shipping: {
-                    street: address.shipping.street,
-                    city: address.shipping.city,
-                    pincode: address.shipping.pincode
-                },
-                billing: {
-                    street: address.billing.street,
-                    city: address.billing.city,
-                    pincode: address.billing.pincode
-                }
-            }
+        }
+      
+        document.address = JSON.parse(req.body.address)
+        console.log(document.address)
+        console.log(document)
+           
+        const requiredFields=["street", "city","pincode"]
+        for (field of requiredFields){
+            let data= document.address.shipping[field]
+            if (!validation.isValidElem(data)) return res.status(400).send({ status: false, msg: ` shipping ${field} is required` })
+        }
+        const required=["street", "city","pincode"]
+        for (field of required){
+            let data= document.address.billing[field]
+            if (!validation.isValidElem(data)) return res.status(400).send({ status: false, msg: ` billing ${field} is required` })
         }
         console.log(document)
         let files = req.files
@@ -134,7 +113,7 @@ const createUser = async function (req, res) {
         else {
             return res.status(400).send({ status: false, message: "no image present" })
         }
-        
+        console.log(document)
         let saveData = await userModel.create(document)
         console.log(document)
         return res.status(201).send({
@@ -185,7 +164,7 @@ const userLogin = async (req, res) => {
             "Project5-ProductManagement",
             { expiresIn: '24h' });
         res.setHeader("Authorization", token)
-        res.status(200).send({ status: true, message: "User Login Succesful", data: { userId: user._id, token: token } })
+        res.status(200).send({ status: true, message: "User login successfull", data: { userId: user._id, token: token } })
     }
     catch (error) {
         res.status(500).send({ status: false, message: error.message })

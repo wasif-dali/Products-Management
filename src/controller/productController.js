@@ -1,9 +1,8 @@
 const aws =require("aws-sdk")
+const { json } = require("express")
 const productModel=require("../Model/productModel")
 const validation=require("../validation/validate")
 const ObjectId = require('mongoose').Types.ObjectId
-
-
 
 //--------------------------------------aws--------------------------------------------------------
 aws.config.update({
@@ -193,12 +192,16 @@ try{
         if (priceSort == "1") {
             console.log(document)
             getdata = await productModel.find(document).sort({ price: 1 });
-            return res.status(200).send({status:true , data : getdata})
+            return res.status(200).send({status: true,
+                message: 'Success',
+                data: getdata})
         } else if (priceSort == "-1") {
            console.log("chal raha hai")
            console.log(document)
            getdata = await productModel.find(document).sort({ price: -1 });
-           return res.status(200).send({status:true , data : getdata})
+           return res.status(200).send({status: true,
+            message: 'Success',
+            datagetdata})
         }
     }
     // console.log(document)
@@ -207,7 +210,9 @@ try{
     getdata = await productModel.find(document)
     if(getdata.length == 0 ) return res.status(404).send({status:false , msg : "No product Found"})
     console.log(document)
-    return res.status(200).send({status:true , data : getdata})
+    return res.status(200).send({status: true,
+        message: 'Success',
+        data :getdata})
 }catch(err){
     console.log(err)
     return res.status(500).send({ message: err.message })
@@ -227,11 +232,9 @@ const getById = async (req, res) =>
 
         const checkProduct = await productModel.findOne({ _id: productId, isDeleted: false })
        
-        if (!checkProduct) return res.status(404)
-        .send({ status: false, message: "productId invalid or the product deleted" })
+        if (!checkProduct) return res.status(404).send({ status: false, message: "productId invalid or the product deleted" })
 
-        res.status(200)
-        .send({ status: true, message: 'Success', data: checkProduct })
+        return res.status(200).send({ status: true, message: 'Success', data: checkProduct })
 
     } 
     
@@ -247,11 +250,12 @@ const updateData = async function(req ,res) {
         let productId = req.params.productId;
         let files = req.files;
         
+        
 
         if (!validation.isValidElem(productId)) {
             return res.status(400).send({ status: false, message: "userId is not given" });
         }
-        if (!mongoose.isValidObjectId(productId)) {
+        if (!ObjectId.isValid(productId)) {
             return res.status(400).send({ status: false, message: "userId is Invalid" });
         }
 
@@ -269,32 +273,53 @@ const updateData = async function(req ,res) {
         let {title,description,price,currencyId,currencyFormat,isFreeShipping,productImage,style,availableSizes,installments,isDeleted} = data;
         let updateData = {};
 
-        if (title) {
-            if (!validation.isValidElem(title)) { return res.status(400).send({ status: false, message: "title is missing." }); }
-            if (!validation.isValidName(title)) { return res.status(400).send({ status: false, message: "title should be in correct format." }); }
-            updateData.title = title;
-        }
+        if(title ||title===""){
+            title=title.trim()
+               if (!validation.isValidElem(title)){
+                  return res.status(400).send({ status: false, message: "title is invalid" })};
+               
+                let finding = await productModel.findOne({ title: title });
+              if (finding) {
+                return res.status(400).send({ status: false, message: "title is already present" })}
+                updateData.title = title
+              };
 
-        if (description) {
+        if (description || description === "") {
+            description=description.trim()
             if (!validation.isValidElem(description)) { return res.status(400).send({ status: false, message: "description is missing." }); }
-            if (!validation.isValidName(description)) { return res.status(400).send({ status: false, message: "description should be in correct formate." }); }
+            // if (!validation.isValidName(description)) { return res.status(400).send({ status: false, message: "description should be in correct formate." }); }
             updateData.description = description;
         }
-        if (price) {
+        if (price || price === "") {
+            price =price.trim()
             if (!validation.isValidNumber(price)) { return res.status(400).send({ status: false, message: "price is missing or Not in correct format" }); }
             updateData.price = price;
         }
 
-        if (currencyId) {
-              return res.status(400).send({ status: false, message: "currency key is not able to update  try Other keys" }); 
+        if (currencyId || currencyId === "") {
+            if(currencyId !="INR" )
+            return res.status(400).send({ status: false, message: "currency key is not able to update  try Other keys" }); 
+            
         }
-        if (currencyFormat) {
+        if (currencyFormat || currencyFormat === "" ) {
+            if(currencyFormat !="₹")
+            
             return res.status(400).send({ status: false, message: "currencyFormat is not able to update  try Other keys" }); 
         }
 
         if (isFreeShipping) {
-            if (!validation.isValidElem(isFreeShipping)) return res.status(400).send({ status: false, message: "isFreeShipping is missing" })
-            if (typeof(isFreeShipping)!== Boolean) return res.status(400).send({ status: false, message: "isFreeShipping should be in Boolean" })
+            console.log("rohit singh :"+isFreeShipping)
+            isFreeShipping=isFreeShipping.trim()
+            if (isFreeShipping === "true"){
+                isFreeShipping =true
+            }else if(isFreeShipping === "false"){
+                isFreeShipping = false
+            }
+
+            console.log(isFreeShipping)
+            console.log(isFreeShipping === Boolean)
+            // if (!validation.isValidElem(isFreeShipping)) return res.status(400).send({ status: false, message: "isFreeShipping is missing" })
+            if (typeof(isFreeShipping) !== Boolean) return res.status(400).send({ status: false, message: "isFreeShipping should be in Boolean" })
             updateData.isFreeShipping = isFreeShipping;
         }
 
@@ -324,12 +349,12 @@ const updateData = async function(req ,res) {
             updateData.installments = installments;
         }
         if (isDeleted) {
-            if (typeof(isDeleted)!== Boolean) { return res.status(400).send({ status: false, message: "isDeleted should in Boolean form." }); }
-            updateData.isDeleted = isDeleted;
+            if (isDeleted != "true" || isDeleted != "false") { return res.status(400).send({ status: false, message: "isDeleted should in Boolean form." }); }
+            updateData.isDeleted = Boolean(isDeleted);
             updateData.deletedAt = Date.now()
         }
 
-        const updatedProduct = await userModel.findByIdAndUpdate(productId , updateData, { new: true })
+        const updatedProduct = await productModel.findByIdAndUpdate(productId , updateData, { new: true })
         res.status(200).send({ status: true, message: "User profile updated", data: updatedProduct })
 
     }catch(err){

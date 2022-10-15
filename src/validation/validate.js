@@ -8,7 +8,7 @@ const isValidEmail = (email) => {
 
 //-------------------name--------------
 const isValidName = (name) => {
-    const regx = /^[A-Za-z\\s]+$/
+    const regx = /^[a-z ,.'-]+$/i
     return regx.test(name)
 };
 
@@ -27,7 +27,7 @@ const isValidreqBody=(request)=>{
 
 const isValidElem= (data) =>{
     if (data == undefined || data == null) return false
-    if (typeof(data)==="string" && data.trim()=="" ) return false
+    if (typeof(data)===String && data.trim()=="" ) return false
     return true
 }
 
