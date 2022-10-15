@@ -1,3 +1,4 @@
+
 const aws =require("aws-sdk")
 const productModel=require("../Model/productModel")
 const validation=require("../validation/validate")
@@ -184,4 +185,4 @@ const deleteProduct = async (req, res) =>
         .send({ status: false, message: err.message })
     }
 }
-module.exports={addProduct}
+module.exports={addProduct,}
