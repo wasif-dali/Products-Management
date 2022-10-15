@@ -176,7 +176,7 @@ const getprofile = async function(req,res){
     let profileId= req.params.userId
     if(!profileId) return res.status(400).send({ status: false, message: "userId is required in path par" })
     if(!mongoose.isValidObjectId(profileId)) return res.status(403).send({status:false,message:"Invalid ProfileId"})
-    if(req.token !=profileId) return res.status(403).send({status:false,message:"Unauthorized"})
+    if(req.token.userId !=profileId) return res.status(403).send({status:false,message:"Unauthorized"})
 
     let findProfile= await userModel.findById(profileId)
     if(!findProfile){
@@ -192,7 +192,7 @@ const updateProfile =async function(req ,res){
         let data = req.body;
         let userId = req.params.userId;
         let files = req.files;
-        let userIdfromtoken = req.token
+        let userIdfromtoken = req.token.userId
 
         //console.log("hello")
 
@@ -207,7 +207,7 @@ const updateProfile =async function(req ,res){
         const findUserId = await userModel.findById(userId);
         if (!findUserId)
         return res.status(404).send({ status: false, message: "NO DATA FOUND" });
-        if (req.token.userId != userId) {
+        if (userIdfromtoken != userId) {
             return res.status(403).send({ status: false, message: "YOU ARE NOT AUTHORIZED" });
         }
 

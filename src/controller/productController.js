@@ -318,10 +318,11 @@ const updateData = async function(req ,res) {
 
             console.log(isFreeShipping)
             console.log(isFreeShipping === Boolean)
-            // if (!validation.isValidElem(isFreeShipping)) return res.status(400).send({ status: false, message: "isFreeShipping is missing" })
-            if (typeof(isFreeShipping) !== Boolean) return res.status(400).send({ status: false, message: "isFreeShipping should be in Boolean" })
-            updateData.isFreeShipping = isFreeShipping;
-        }
+        //     // if (!validation.isValidElem(isFreeShipping)) return res.status(400).send({ status: false, message: "isFreeShipping is missing" })
+        //     if (typeof(isFreeShipping) !== Boolean) return res.status(400).send({ status: false, message: "isFreeShipping should be in Boolean" })
+           updateData.isFreeShipping = isFreeShipping;
+        
+    }
 
         if (productImage) {
             if (typeof productImage === "string") {
