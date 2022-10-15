@@ -2,23 +2,16 @@ const jwt = require('jsonwebtoken')
 
 const auth = function(req, res, next) {
     try {
-        let token = req.headers.authorization;
-        // console.log(token)
+        let token = req.headers.authorization
         if (!token) {
-            return res.status(401).send({ status: false, msg: "token is required" });
-        } else {
-            token = token.split(' ')[1]
-            // console.log(token)
-        }
+            return res.status(401).send({ status: false, msg: "token is required" })
+        } 
+        token = token.split(' ')[1]
         jwt.verify(token, "Project5-ProductManagement", (error, decodedtoken) => {
-            if (error) {
-                const msg =
-                    error.message === "jwt expired"? "Token is expired": "Token is invalid";
-                return res.status(401).send({ status: false, msg });
-            }
+            if (error)  return res.status(401).send({ status: false, msg: error.message })
+            
             else {
-                req.token = decodedtoken;
-                // console.log(decodedtoken)
+                req.token = decodedtoken
                 next();
             }
         });

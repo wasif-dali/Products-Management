@@ -45,7 +45,7 @@ const productSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true
-        }, // url link s3
+        }, 
 
         style: {
             type: String,
@@ -55,7 +55,7 @@ const productSchema = new mongoose.Schema(
         availableSizes: {
             type: [String],
             required: true,
-            enum: ["S", "XS", "M", "X", "L", "XL", "XXL",],
+            enum: ["S", "XS", "M", "X", "L", "XL", "XXL"],
             toUpperCase: true,
             trim: true
         },
