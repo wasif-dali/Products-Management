@@ -394,4 +394,4 @@ const deleteProduct = async (req, res) =>
         .send({ status: false, message: err.message })
     }
 }
-module.exports={addProduct}
+module.exports={addProduct,getDataByQuery,deleteProduct,updateData,getById}
