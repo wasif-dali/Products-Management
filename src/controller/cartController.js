@@ -55,13 +55,13 @@ const createCart = async (req, res) => {
             if (!cartCheck) return res.status(404).send({ status: false, message: "no cart found" })
         }
 
-        let findCart = await cartModel.findOne({ userId: userId })
+        let findCart = await userModel.findById(userId)
 
         if (findCart || data.cartId) {
             let newItem = findCart.items
 
-            let list = newItem.map((item) => item.productId.toString())
-            if (list.find((item) => item == (data.productId))) {
+        
+            if (newItem.find((item) => item == (data.productId.toString()))) {
                 let updatedCart = await cartModel.findOneAndUpdate({ userId: userId, "items.productId": data.productId },
                     {
                         $inc: {
@@ -83,9 +83,61 @@ const createCart = async (req, res) => {
             return res.status(201).send({ status: true, message: "Success", data: result })
         }
 
-    } catch (err) {
-        return res.status(500).send({ status: false, Message: err.message })
+   } catch (err) {
+         return res.status(500).send({ status: false, Message: err.message })
     }
-}
+ }
+//-------------------------------------------------------get All cart-----------------------------------------------------------------
+const getCart = async function (req, res) {
+    try {
+        userId = req.params.userId
+        if (!userId) return res.status(400).send({ status: false, message: 'Please provide userId' })
+        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'Please provide valid userId' })
+        //checking if the cart exist with this userId or not
+        let userCheck = await userModel.findById(userId)
+        if (!userCheck) return res.status(404).send({ status: false, message: "no user found" })
+        if (req.tokenId != userId) return res.status(403).send({ status: false, message: "you are unauthorized" })
 
-module.exports = { createCart }
+        let findCart = await cartModel.findOne({ userId: userId }).populate('items.productId').select({ __v: 0 });
+        if (!findCart) return res.status(404).send({ status: false, message: `No cart found with this "${userId}" userId` });
+
+        res.status(200).send({ status: true, message: "Cart Details", data: findCart })
+
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message });
+    }
+};
+
+//----------------------------------------------------------------delete Cart-------------------------------------------------
+const deleteCart = async function (req, res) {
+    try {
+        let userId = req.params.userId;
+
+        //--------------------------- ---------------------Validation Starts-------------------------------------//
+        // validating userid from params
+        if (!isValid(userId)) {
+            return res.status(400).send({ status: false, message: "Invalid request parameters. userId is required" });
+        }
+        if (!isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: "Invalid request parameters. userId is not valid" });
+        }
+
+        let Userdata = await userModel.findOne({ _id: userId })
+        if (!Userdata) {
+            return res.status(404).send({ status: false, msg: "No such user exists with this userID" });
+        }
+        if (req.tokenId != userId) return res.status(403).send({ status: false, message: "you are unauthorized" })
+
+
+        let usercart = await cartModel.findOne({ userId: userId })
+        if (!usercart) {
+            return res.status(404).send({ status: false, msg: "there is No such cart of this user" });
+        }
+        let updatedUserCart = await cartModel.findOneAndUpdate({ userId: userId }, { items: [], totalPrice: 0, totalItems: 0 }, { new: true })
+        return res.status(204).send({ status: true, message: " cart deleted successfully" })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send({ status: false, message: err.message });
+    }
+};
+module.exports = { createCart, getCart, deleteCart }
