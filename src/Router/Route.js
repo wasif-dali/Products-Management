@@ -4,7 +4,7 @@ const {createUser,userLogin,getprofile,updateProfile}= require('../controller/us
 const {auth} =require('../middleware/auth')
 const{getById,getDataByQuery,deleteProduct,addProduct,updateData}=require('../controller/productController')
 const{createCart,getCart,deleteCart}=require("../controller/cartController")
-const{createOrder}=require('../controller/orderController')
+const{createOrder,updateOrder}=require('../controller/orderController')
 
 router.get('/test-me',function(req,res){
     res.send({msg : "done"})
@@ -32,6 +32,7 @@ router.delete('/users/:userId/cart',auth,deleteCart)
 //----------------------------------Order API------------------------------------
 
 router.post('/users/:userId/orders',auth,createOrder)
+router.
 
 
 

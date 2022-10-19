@@ -148,43 +148,30 @@ const updateCart =async (req,res) =>{
       let data = req.body;
       let { productId, cartId, removeProduct } = data;
   
-      if (Object.keys(data).length == 0)
-        return res
-          .status(400)
-          .send({ status: false, message: "please enter data to update" });
+      if (!validation.isValidreqBody(data))
+        return res.status(400).send({ status: false, message: "please enter data to update" });
   
-      if (!validation.isValidObjectId(userId))
-        return res
-          .status(400)
-          .send({ status: false, message: "please enter valid user id" });
+      if (!mongoose.isValidObjectId(userId))
+        return res.status(400).send({ status: false, message: "please enter valid user id" });
       let user = await userModel.findOne({ _id: userId });
       if (!user)
-        return res
-          .status(404)
-          .send({ status: false, message: "no such user found" });
+        return res.status(404).send({ status: false, message: "no such user found" });
   
       //Authorisation
       let tokenUserId = req.userId;
       if (userId != tokenUserId) {
-        return res
-          .status(403)
-          .send({ status: false, message: "UnAuthorized Access!!" });
+        return res.status(403).send({ status: false, message: "UnAuthorized Access!!" });
       }
   
-      if (!validation.isValidObjectId(productId))
-        return res
-          .status(400)
-          .send({ status: false, message: "please enter valid product id" });
-      let findProduct = await productModel.findOne({
-        _id: productId,
-        isDeleted: false,
-      });
+      if (!mongoose.isValidObjectId(productId))
+        return res.status(400).send({ status: false, message: "please enter valid product id" });
+      let findProduct = await productModel.findOne({_id: productId,isDeleted: false,});
       if (!findProduct)
         return res
           .status(404)
           .send({ status: false, message: "product not found" });
   
-      if (!validation.isValidObjectId(cartId))
+      if (!mongoose.isValidObjectId(cartId))
         return res
           .status(400)
           .send({ status: false, message: "please enter valid cart Id" });
@@ -259,7 +246,7 @@ const updateCart =async (req,res) =>{
               { new: true }
             );
             return res
-              .status(200)
+              .status(201)
               .send({
                 status: true,
                 message: "One item removed successfully",

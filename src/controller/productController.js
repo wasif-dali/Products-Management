@@ -347,11 +347,7 @@ const updateData = async (req, res) => {
             if (!validation.isValidElem(style)) { return res.status(400).send({ status: false, message: "title is missing." }); }
             updateData.style = style;
         }
-        if (availableSizes) {
-            ///
-            ////
-            //
-        }
+       
         if (installments) {
             if (!validation.isValidNumber(installments)) { return res.status(400).send({ status: false, message: "installment is missing or in incorrect formate " }); }
             updateData.installments = installments;

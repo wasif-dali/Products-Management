@@ -1,6 +1,7 @@
 const orderModel = require("../Model/OrderModel")
 const userModel = require("../Model/userModel");
 const cartModel = require("../Model/cartModel");
+const validation=require('../validation/validate')
 const mongoose = require("mongoose")
 
 
@@ -16,7 +17,7 @@ const createOrder = async function (req, res) {
         if (!userCheck) {
             return res.status(404).send({ status: false, message: "user id doesn't exist" })
         }
-        if (req.tokenId != userId) return res.status(403).send({ status: false, message: "you are unauthorized" })
+        if (req.token.userId != userId) return res.status(403).send({ status: false, message: "you are unauthorized" })
 
         if (!cartId) {
             return res.status(400).send({ status: false, message: "please provide cartId" })
@@ -53,21 +54,13 @@ const createOrder = async function (req, res) {
         }
         order.cancellable = cancellable
 
-        let status = ["pending"]
-        if (req.body.status) {
-            if (!status.includes(req.body.status)) {
-                return res.status(400).send({ status: false, message: "status should be pending" })
-            }
-            order.status = req.body.status
-        }
-      
-        let filter = {}
-        filter.items = []
-        filter.totalItems = 0
-        filter.totalPrice = 0
-        let cartUpdated = await cartModel.findOneAndUpdate({ _id: cartId }, filter, { new: true })
+         order.status = req.body.status
+        
 
         let orderCreate = await orderModel.create(order)
+        await cartModel.findOneAndUpdate({ _id: cartId },{items:[],totalItems:0,totalPrice:0}, { new: true })
+
+   
         res.status(201).send({ status: true, message: "Success", data: orderCreate })
 
 
@@ -79,4 +72,89 @@ const createOrder = async function (req, res) {
         return res.status(500).send({ status: false, messgage: err.messgage })
     }
 }
-module.exports={createOrder}
+//---------------------------------------update Prodoct-----------------------------------------------
+
+const updateOrder = async (req, res) => {
+
+    try {
+
+        const userId = req.params.userId
+
+        if (!mongoose.isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: 'Please enter valid user ID' });
+        }
+
+        const userDoc = await userModel.findById(userId)
+
+        if (userDoc === null) {
+            return res.status(404).send({ status: false, message: 'User does not exist in DB' });
+        }
+
+        Authorization
+        if (req.token.userId !== userId) {
+            return res.status(403).send({
+                status: false,
+                message: `Authorisation failed; You are logged in as ${req.token.userId}, not as ${userId}`
+            });
+        }
+
+        if (!validation.isValidreqBody(req.body)) {
+            return res.status(400).send({ status: false, message: `Invalid Input Parameters` })
+        }
+
+        const data =req.body 
+
+        let { orderId, status } = data
+
+        if (!orderId) {
+            return res.status(400).send({ status: false, message: `Order Id Should Be Present In RequestBody` })
+        }
+
+        if (!validation.isValidElem(orderId)) {
+            return res.status(400).send({ status: false, message: 'order Id is required!!!' })
+        }
+
+        if (!mongoose.isValidObjectId(orderId)) {
+            return res.status(400).send({ status: false, message: 'Please enter valid order Id ' })
+        }
+
+
+        const isOrderExist = await orderModel.findOne({ _id: orderId, isDeleted: false })
+
+        if (!isOrderExist) {
+            return res.status(400).send({ status: false, message: `Order not found for this user` })
+        }
+
+        if (isOrderExist.userId.toString() !== userId) {
+            return res.status(400).send({ status: false, message: `Order does not belong to user` })
+        }
+
+        if (!status) {
+            return res.status(400).send({ status: false, message: `Status Should Be Present In Request Body` })
+
+        }
+
+        if (status && !["completed", "cancelled"].includes(status)) {
+            return res.status(400).send({ status: false, message: `Status can be changed from pending to cancelled or completed only` })
+        }
+
+        if (isOrderExist.status == 'completed' || isOrderExist.status == 'cancelled') {
+            return res.status(400).send({ status: false, message: `Th order has been ${isOrderExist.status} already` })
+        }
+
+        if (isOrderExist.cancellable == false && status == 'cancelled') {
+            return res.status(400).send({ status: false, message: `Order can not be cancelled` })
+        }
+
+        const updatedData = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status } }, { new: true })
+
+        return res.status(200).send({ status: true, message: `order updated sucessfully`, data: updatedData })
+
+
+    } catch (err) {
+        res.status(500).send({ status: false, message: err.message });
+    }
+
+}
+
+module.exports = { createOrder,updateOrder }
