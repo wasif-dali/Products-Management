@@ -1,7 +1,7 @@
 const orderModel = require("../Model/OrderModel")
 const userModel = require("../Model/userModel");
 const cartModel = require("../Model/cartModel");
-const validation=require('../validation/validate')
+const validation = require('../validation/validate')
 const mongoose = require("mongoose")
 
 
@@ -54,13 +54,13 @@ const createOrder = async function (req, res) {
         }
         order.cancellable = cancellable
 
-         order.status = req.body.status
-        
+        order.status = req.body.status
+
 
         let orderCreate = await orderModel.create(order)
-        await cartModel.findOneAndUpdate({ _id: cartId },{items:[],totalItems:0,totalPrice:0}, { new: true })
+        await cartModel.findOneAndUpdate({ _id: cartId }, { items: [], totalItems: 0, totalPrice: 0 }, { new: true })
 
-   
+
         res.status(201).send({ status: true, message: "Success", data: orderCreate })
 
 
@@ -90,7 +90,7 @@ const updateOrder = async (req, res) => {
             return res.status(404).send({ status: false, message: 'User does not exist in DB' });
         }
 
-        Authorization
+       // Authorization
         if (req.token.userId !== userId) {
             return res.status(403).send({
                 status: false,
@@ -102,7 +102,7 @@ const updateOrder = async (req, res) => {
             return res.status(400).send({ status: false, message: `Invalid Input Parameters` })
         }
 
-        const data =req.body 
+        const data = req.body
 
         let { orderId, status } = data
 
@@ -139,7 +139,7 @@ const updateOrder = async (req, res) => {
         }
 
         if (isOrderExist.status == 'completed' || isOrderExist.status == 'cancelled') {
-            return res.status(400).send({ status: false, message: `Th order has been ${isOrderExist.status} already` })
+            return res.status(200).send({ status: true, message: `The order has been ${isOrderExist.status} already` })
         }
 
         if (isOrderExist.cancellable == false && status == 'cancelled') {
@@ -148,7 +148,7 @@ const updateOrder = async (req, res) => {
 
         const updatedData = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status } }, { new: true })
 
-        return res.status(200).send({ status: true, message: `order updated sucessfully`, data: updatedData })
+        return res.status(200).send({ status: true, message: `Success`, data: updatedData })
 
 
     } catch (err) {
@@ -157,4 +157,4 @@ const updateOrder = async (req, res) => {
 
 }
 
-module.exports = { createOrder,updateOrder }
+module.exports = { createOrder, updateOrder }

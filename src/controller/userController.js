@@ -1,9 +1,9 @@
 const userModel = require("../Model/userModel")
-const mongoose=require("mongoose")
+const mongoose = require("mongoose")
 const bcrypt = require('bcrypt');
 const validation = require("../validation/validate")
-const aws=require("aws-sdk")
-const jwt =require('jsonwebtoken')
+const aws = require("aws-sdk")
+const jwt = require('jsonwebtoken')
 
 
 aws.config.update({
@@ -84,19 +84,19 @@ const createUser = async function (req, res) {
             phone: phone,
             password: newpassword,
         }
-      
+
         document.address = JSON.parse(req.body.address)
         console.log(document.address)
         console.log(document)
-           
-        const requiredFields=["street", "city","pincode"]
-        for (field of requiredFields){
-            let data= document.address.shipping[field]
+
+        const requiredFields = ["street", "city", "pincode"]
+        for (field of requiredFields) {
+            let data = document.address.shipping[field]
             if (!validation.isValidElem(data)) return res.status(400).send({ status: false, msg: ` shipping ${field} is required` })
         }
-        const required=["street", "city","pincode"]
-        for (field of required){
-            let data= document.address.billing[field]
+        const required = ["street", "city", "pincode"]
+        for (field of required) {
+            let data = document.address.billing[field]
             if (!validation.isValidElem(data)) return res.status(400).send({ status: false, msg: ` billing ${field} is required` })
         }
         console.log(document)
@@ -120,8 +120,8 @@ const createUser = async function (req, res) {
             "status": true,
             "message": "User created successfully",
             "data": saveData
-      })
-        
+        })
+
 
     } catch (err) {
         return res.status(500).send({
@@ -172,23 +172,23 @@ const userLogin = async (req, res) => {
 }
 
 
-const getprofile = async function(req,res){
-    let profileId= req.params.userId
-    if(!profileId) return res.status(400).send({ status: false, message: "userId is required in path par" })
-    if(!mongoose.isValidObjectId(profileId)) return res.status(403).send({status:false,message:"Invalid ProfileId"})
-    if(req.token.userId !=profileId) return res.status(403).send({status:false,message:"Unauthorized"})
+const getprofile = async function (req, res) {
+    let profileId = req.params.userId
+    if (!profileId) return res.status(400).send({ status: false, message: "userId is required in path par" })
+    if (!mongoose.isValidObjectId(profileId)) return res.status(403).send({ status: false, message: "Invalid ProfileId" })
+    if (req.token.userId != profileId) return res.status(403).send({ status: false, message: "Unauthorized" })
 
-    let findProfile= await userModel.findById(profileId)
-    if(!findProfile){
-        return res.status(404).send({status: false,message: "User profile details Not found"})
+    let findProfile = await userModel.findById(profileId)
+    if (!findProfile) {
+        return res.status(404).send({ status: false, message: "User profile details Not found" })
     }
-    
-    return res.status(200).send({status: true,message: "User profile details",data:findProfile})
-} 
+
+    return res.status(200).send({ status: true, message: "User profile details", data: findProfile })
+}
 
 
-const updateProfile =async function(req ,res){
-      try {
+const updateProfile = async function (req, res) {
+    try {
         let data = req.body;
         let userId = req.params.userId;
         let files = req.files;
@@ -206,7 +206,7 @@ const updateProfile =async function(req ,res){
 
         const findUserId = await userModel.findById(userId);
         if (!findUserId)
-        return res.status(404).send({ status: false, message: "NO DATA FOUND" });
+            return res.status(404).send({ status: false, message: "NO DATA FOUND" });
         if (userIdfromtoken != userId) {
             return res.status(403).send({ status: false, message: "YOU ARE NOT AUTHORIZED" });
         }
@@ -222,13 +222,13 @@ const updateProfile =async function(req ,res){
 
         if (fname) {
             if (!validation.isValidElem(fname)) { return res.status(400).send({ status: false, message: "fname is missing." }); }
-        
+
             updateData.fname = fname;
         }
 
         if (lname) {
             if (!validation.isValidElem(lname)) { return res.status(400).send({ status: false, message: "lname is missing." }); }
-        
+
             updateData.lname = lname;
         }
         if (email) {
@@ -236,7 +236,7 @@ const updateProfile =async function(req ,res){
             if (!validation.isValidEmail(email)) return res.status(400).send({ status: false, message: "enter valid email" })
             let emailCheck = await userModel.findOne({ email: email })
             if (emailCheck) return res.status(409).send({ status: false, message: "email already used" })
-    
+
             updateData.email = email;
         }
 
@@ -252,7 +252,7 @@ const updateProfile =async function(req ,res){
 
         if (password) {
             if (!validation.isValidElem(password)) { return res.status(400).send({ status: false, message: "password is invalid" }); }
-            if(!validation.isvalidpassword(password)){return res.status(400).send({status:false,message:"please enter a valid password between 8 to 15 digit"})}
+            if (!validation.isvalidpassword(password)) { return res.status(400).send({ status: false, message: "please enter a valid password between 8 to 15 digit" }) }
             updateData.password = await bcrypt.hash(password, 10);
 
         }
@@ -267,7 +267,7 @@ const updateProfile =async function(req ,res){
         if (files && files.length > 0) {
 
             let uploadedFileURL = await uploadFile(files[0])
-        
+
             updateData.profileImage = uploadedFileURL
         }
         if (address) {
@@ -291,7 +291,7 @@ const updateProfile =async function(req ,res){
 
                 if (address.shipping.pincode) {
                     let pinCode = parseInt(address.shipping.pincode)
-                    if (!validation.PinCode(pinCode))return res.status(400).send({ status: false, message: "provide a valid pincode." })
+                    if (!validation.PinCode(pinCode)) return res.status(400).send({ status: false, message: "provide a valid pincode." })
                     updateData['address.shipping.pincode'] = pinCode;
                 }
             }
@@ -339,6 +339,6 @@ const updateProfile =async function(req ,res){
 
 
 module.exports = {
-    createUser, userLogin,getprofile,updateProfile
+    createUser, userLogin, getprofile, updateProfile
 
 }

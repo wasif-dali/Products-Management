@@ -200,7 +200,6 @@ const getDataByQuery = async function (req, res) {
                     data: getdata
                 })
             } else if (priceSort == "-1") {
-                console.log("chal raha hai")
                 console.log(document)
                 getdata = await productModel.find(document).sort({ price: -1 });
                 return res.status(200).send({

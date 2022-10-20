@@ -3,7 +3,7 @@ const router= express.Router()
 const {createUser,userLogin,getprofile,updateProfile}= require('../controller/userController')
 const {auth} =require('../middleware/auth')
 const{getById,getDataByQuery,deleteProduct,addProduct,updateData}=require('../controller/productController')
-const{createCart,getCart,deleteCart}=require("../controller/cartController")
+const{createCart,getCart,deleteCart,updateCart}=require("../controller/cartController")
 const{createOrder,updateOrder}=require('../controller/orderController')
 
 router.get('/test-me',function(req,res){
@@ -28,11 +28,12 @@ router.delete('/products/:productId',deleteProduct)
 router.post('/users/:userId/cart',auth,createCart)
 router.get('/users/:userId/cart',auth,getCart)
 router.delete('/users/:userId/cart',auth,deleteCart)
+router.put('/users/:userId/cart',auth,updateCart)
 
 //----------------------------------Order API------------------------------------
 
 router.post('/users/:userId/orders',auth,createOrder)
-router.
+router.put('/users/:userId/orders',auth,updateOrder)
 
 
 
